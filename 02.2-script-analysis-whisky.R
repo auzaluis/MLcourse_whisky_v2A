@@ -9,7 +9,7 @@ DF3 <- DF3 %>% as_tibble()
 
 # Generando gráficas ----
 
-## Marca que más compra
+## Marca que más compra (lealtad)
 
 tabla_lealtad <- DF3 %>% 
   # contar los casos
@@ -28,16 +28,25 @@ write.xlsx(x = tabla_lealtad,
 
 tabla_lealtad %>% 
   
-  filter(`¿Cuál es la marca que más compra?` != "Ninguno") %>% 
+  rename(Lealtad = `¿Cuál es la marca que más compra?`) %>% 
   
-  ggplot(mapping = aes(x = `¿Cuál es la marca que más compra?`,
+  filter(Lealtad != "Ninguno") %>% 
+  
+  mutate(Lealtad = factor(Lealtad),
+         Lealtad = fct_reorder(Lealtad, n, .desc = T)) %>% 
+  
+  ggplot(mapping = aes(x = Lealtad,
                        y = Proporción,
-                       fill = `¿Cuál es la marca que más compra?`,
+                       fill = Lealtad,
                        label = Porcentaje)) +
   
   geom_col() +
   
   geom_label(fill = "white") +
+  
+  labs(title = "Lealtad de marca",
+       subtitle = "¿Cuál es la marca que más compra?",
+       caption = "Johnnie Walker es la marca preferida") +
   
   scale_fill_viridis_d() +
   
@@ -45,7 +54,34 @@ tabla_lealtad %>%
   
   scale_y_continuous(labels = scales::percent) +
   
-  theme(legend.position = "none")
+  theme(legend.position = "none",
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        axis.title.x = element_blank())
+
+
+
+## Prueba
+
+DF3 %>% 
+  pivot_longer(cols = starts_with("Prueba"),
+               names_to = "Variable",
+               values_to = "Prueba") %>% 
+  select(Prueba) %>% 
+  na.omit() %>% 
+  count(Prueba) %>% 
+  
+  mutate(Propoción = n/nrow(DF3))
+
+
+  
+  
+  
+  
+  
+  
+  
+  
 
 
 

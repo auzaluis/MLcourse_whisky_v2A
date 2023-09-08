@@ -70,8 +70,40 @@ DF3 %>%
   select(Prueba) %>% 
   na.omit() %>% 
   count(Prueba) %>% 
+  mutate(Proporción = n/nrow(DF3),
+         Prueba = ifelse(test = Prueba == "Johnny Walker",
+                         yes = "Johnnie Walker",
+                         no = Prueba),
+         Porcentaje = scales::percent(Proporción),
+         Prueba = factor(Prueba),
+         Prueba = fct_reorder(Prueba, n, .desc = T)) %>% 
   
-  mutate(Propoción = n/nrow(DF3))
+  ggplot(mapping = aes(x = Prueba,
+                       y = Proporción,
+                       fill = Prueba,
+                       label = Porcentaje)) +
+  
+  geom_col() +
+  
+  geom_label(fill = "white") +
+  
+  labs(title = "Prueba de marca",
+       subtitle = "¿Cuáles de estar marcas ha comprado alguna vez?",
+       caption = "Las marcas seguidoras no llegan ni al 50%") +
+  
+  scale_fill_viridis_d() +
+  
+  theme_minimal() +
+  
+  scale_y_continuous(labels = scales::percent) +
+  
+  theme(legend.position = "none",
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        axis.title.x = element_blank())
+
+  
+  
 
 
   

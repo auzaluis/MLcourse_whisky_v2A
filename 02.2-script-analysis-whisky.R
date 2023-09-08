@@ -105,10 +105,35 @@ DF3 %>%
   
   
 
+DF3 %>% 
+  pivot_longer(cols = starts_with("Prueba"),
+               names_to = "Variable",
+               values_to = "Prueba") %>% 
+  select(Prueba) %>% 
+  na.omit() %>% 
+  count(Prueba) %>% 
+  mutate(Proporción = n/nrow(DF3),
+         Porcentaje = scales::percent(Proporción),
+         Prueba = factor(Prueba),
+         Prueba = fct_reorder(Prueba, n, .desc = T))
+  
+## Creación de funciones
 
+table <- function(dataFrame, indicador){
   
+   dataFrame %>% 
+    pivot_longer(cols = starts_with(indicador),
+                 names_to = "Variables",
+                 values_to = "KPI") %>% 
+    select(KPI) %>% 
+    na.omit() %>% 
+    count(KPI) %>% 
+    mutate(Proporción = n/nrow(dataFrame))
   
-  
+}
+
+
+table(dataFrame = DF3, indicador = "Conocimiento")
   
   
   

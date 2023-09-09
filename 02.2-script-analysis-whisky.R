@@ -5,7 +5,11 @@ library(viridis)
 library(openxlsx)
 
 glimpse(DF3)
-DF3 <- DF3 %>% as_tibble()
+
+DF3 <- DF3 %>%
+  as_tibble() %>% 
+  mutate(across(.cols = everything(),
+                .fns = ~ gsub("Johnny Walker", "Johnnie Walker", .)))
 
 # Generando gráficas ----
 
@@ -103,20 +107,7 @@ DF3 %>%
         axis.title.x = element_blank())
 
   
-  
 
-DF3 %>% 
-  pivot_longer(cols = starts_with("Prueba"),
-               names_to = "Variable",
-               values_to = "Prueba") %>% 
-  select(Prueba) %>% 
-  na.omit() %>% 
-  count(Prueba) %>% 
-  mutate(Proporción = n/nrow(DF3),
-         Porcentaje = scales::percent(Proporción),
-         Prueba = factor(Prueba),
-         Prueba = fct_reorder(Prueba, n, .desc = T))
-  
 ## Creación de funciones
 
 table <- function(dataFrame, indicador){
@@ -124,21 +115,78 @@ table <- function(dataFrame, indicador){
    dataFrame %>% 
     pivot_longer(cols = starts_with(indicador),
                  names_to = "Variables",
-                 values_to = "KPI") %>% 
-    select(KPI) %>% 
+                 values_to = "Marcas") %>% 
+    select(Marcas) %>% 
     na.omit() %>% 
-    count(KPI) %>% 
-    mutate(Proporción = n/nrow(dataFrame))
+    count(Marcas) %>% 
+    mutate(Proporción = n/nrow(dataFrame),
+           KPI = rep(indicador, nrow(.))) %>% 
+    relocate(KPI, .before = Marcas)
   
 }
 
 
 table(dataFrame = DF3, indicador = "Conocimiento")
+
+## Juntando data frames
+
+tabla_funnel <- bind_rows(table(dataFrame = DF3,
+                                indicador = "Conocimiento"),
+                          table(dataFrame = DF3,
+                                indicador = "Prueba"))
+
+
+ggplot(mapping = aes(x = Prueba,
+                     y = Proporción,
+                     fill = Prueba,
+                     label = Porcentaje)) +
   
+  geom_col() +
   
+  geom_label(fill = "white") +
   
+  labs(title = "Prueba de marca") +
   
+  scale_fill_viridis_d() +
   
+  theme_minimal() +
+  
+  scale_y_continuous(labels = scales::percent) +
+  
+  theme(legend.position = "none",
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        axis.title.x = element_blank())
+
+gg_funnel <- function(tabla, kpis, marcas, prop) {
+  
+  tabla %>% 
+    
+    ggplot(mapping = aes(x = .data[[kpis]],
+                         y = .data[[prop]],
+                         fill = .data[[kpis]])) +
+    
+    geom_col() +
+    
+    facet_wrap(~ .data[[marcas]])
+  
+}
+
+gg_funnel(tabla = tabla_funnel,
+          kpis = "KPI",
+          prop = "Proporción",
+          marcas = "Marcas")
+
+
+
+
+
+
+
+
+
+
+
 
 
 

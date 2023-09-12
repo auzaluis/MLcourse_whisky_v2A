@@ -158,24 +158,44 @@ ggplot(mapping = aes(x = Prueba,
         panel.grid.minor.y = element_blank(),
         axis.title.x = element_blank())
 
-gg_funnel <- function(tabla, kpis, marcas, prop) {
+gg_funnel <- function(tabla, kpis, marcas, prop, porcentaje) {
   
   tabla %>% 
     
     ggplot(mapping = aes(x = .data[[kpis]],
                          y = .data[[prop]],
-                         fill = .data[[kpis]])) +
+                         fill = .data[[kpis]],
+                         label = .data[[porcentaje]])) +
     
     geom_col() +
     
-    facet_wrap(~ .data[[marcas]])
+    facet_wrap(~ .data[[marcas]]) +
+    
+    geom_label(fill = "white") +
+    
+    labs(title = "Funnel de marca",
+         subtitle = "Conocimiento y Prueba",
+         caption = "JW es la marca más conocida") +
+    
+    theme_minimal() +
+    
+    scale_y_continuous(labels = scales::percent) +
+    
+    theme(legend.position = "none",
+          panel.grid.major.x = element_blank(),
+          panel.grid.minor.y = element_blank(),
+          axis.title = element_blank())
   
 }
 
-gg_funnel(tabla = tabla_funnel,
+gg_funnel(tabla = tabla_funnel %>% 
+            mutate(Porcentaje = scales::percent(Proporción)),
           kpis = "KPI",
           prop = "Proporción",
-          marcas = "Marcas")
+          marcas = "Marcas",
+          porcentaje = "Porcentaje") +
+  
+  scale_fill_viridis_d()
 
 
 

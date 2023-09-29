@@ -239,7 +239,11 @@ tabla_consideración <- DF3 %>%
            sep = "Consideración ") %>% 
   
   mutate(KPI = rep("Consideración",
-                   times = nrow(.))) %>% 
+                   times = nrow(.))) %>%
+  
+  mutate(Marcas = ifelse(test = Marcas == "Johnny Walker",
+                         yes = "Johnnie Walker",
+                         no = Marcas)) %>% 
   
   group_by(KPI, Marcas) %>% 
   

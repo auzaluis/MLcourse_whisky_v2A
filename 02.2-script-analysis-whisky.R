@@ -198,7 +198,26 @@ gg_funnel(tabla = tabla_funnel %>%
   scale_fill_viridis_d()
 
 
+# Agregando lealtad al gráfico
 
+tabla_lealtad_2 <- tabla_lealtad %>% 
+  rename(Marcas = `¿Cuál es la marca que más compra?`) %>% 
+  select(-Porcentaje) %>% 
+  mutate(KPI = rep("Lealtad", times = nrow(.))) %>% 
+  relocate(KPI, .before = "Marcas") %>% 
+  filter(Marcas != "Ninguno")
+
+tabla_funnel_2 <- bind_rows(tabla_funnel,
+                            tabla_lealtad_2)
+
+
+
+gg_funnel(tabla = tabla_funnel_2 %>% 
+            mutate(Porcentaje = scales::percent(Proporción)),
+          kpis = "KPI",
+          prop = "Proporción",
+          marcas = "Marcas",
+          porcentaje = "Porcentaje")
 
 
 

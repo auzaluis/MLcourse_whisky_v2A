@@ -285,7 +285,12 @@ tabla_funnel_4 <- bind_rows(tabla_funnel_3,
                             tabla_recomendación)
 
 gg_funnel(tabla = tabla_funnel_4 %>% 
-            mutate(Porcentaje = scales::percent(Proporción)),
+            mutate(Porcentaje = scales::percent(Proporción),
+                   KPI = fct_relevel(KPI, c("Conocimiento",
+                                            "Consideración",
+                                            "Prueba",
+                                            "Lealtad",
+                                            "Recomendación"))),
           kpis = "KPI",
           prop = "Proporción",
           marcas = "Marcas",

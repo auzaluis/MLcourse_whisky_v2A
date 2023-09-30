@@ -136,27 +136,6 @@ tabla_funnel <- bind_rows(table(dataFrame = DF3,
                                 indicador = "Prueba"))
 
 
-ggplot(mapping = aes(x = Prueba,
-                     y = Proporción,
-                     fill = Prueba,
-                     label = Porcentaje)) +
-  
-  geom_col() +
-  
-  geom_label(fill = "white") +
-  
-  labs(title = "Prueba de marca") +
-  
-  scale_fill_viridis_d() +
-  
-  theme_minimal() +
-  
-  scale_y_continuous(labels = scales::percent) +
-  
-  theme(legend.position = "none",
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor.y = element_blank(),
-        axis.title.x = element_blank())
 
 gg_funnel <- function(tabla, kpis, marcas, prop, porcentaje) {
   
@@ -260,6 +239,52 @@ tabla_funnel_3 <- bind_rows(tabla_funnel_2,
                             tabla_consideración)
 
 gg_funnel(tabla = tabla_funnel_3 %>% 
+            mutate(Porcentaje = scales::percent(Proporción)),
+          kpis = "KPI",
+          prop = "Proporción",
+          marcas = "Marcas",
+          porcentaje = "Porcentaje")
+
+
+
+# Tabla de recomendación
+
+tabla_recomendación <- DF3 %>% 
+  
+  select(starts_with("Recomendación")) %>% 
+  
+  pivot_longer(cols = everything()) %>% 
+  
+  mutate(t2b = ifelse(test = value %in% c(9,10),
+                      yes = 1,
+                      no = 0)) %>% 
+  
+  separate(col = "name",
+           into = c("KPI", "Marcas"),
+           sep = "Recomendación ") %>% 
+  
+  mutate(KPI = rep("Recomendación",
+                   times = nrow(.))) %>%
+  
+  mutate(Marcas = ifelse(test = Marcas == "Johnny Walker",
+                         yes = "Johnnie Walker",
+                         no = Marcas)) %>% 
+  
+  group_by(KPI, Marcas) %>% 
+  
+  summarise(n = sum(t2b)) %>% 
+  
+  ungroup() %>% 
+  
+  mutate(Proporción = n/nrow(DF3),
+         Marcas = ifelse(Marcas == "Chivas",
+                         yes = "Chivas Regal",
+                         no = Marcas))
+
+tabla_funnel_4 <- bind_rows(tabla_funnel_3,
+                            tabla_recomendación)
+
+gg_funnel(tabla = tabla_funnel_4 %>% 
             mutate(Porcentaje = scales::percent(Proporción)),
           kpis = "KPI",
           prop = "Proporción",

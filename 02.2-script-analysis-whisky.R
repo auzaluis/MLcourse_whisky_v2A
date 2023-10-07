@@ -3,6 +3,7 @@ library(tidyverse)
 library(plotly)
 library(viridis)
 library(openxlsx)
+library(FactoMineR)
 
 glimpse(DF3)
 
@@ -295,6 +296,46 @@ gg_funnel(tabla = tabla_funnel_4 %>%
           prop = "Proporción",
           marcas = "Marcas",
           porcentaje = "Porcentaje")
+
+
+
+# Mapa perceptual ----
+
+## Tabla de frecuencias
+
+DF4 <- DF3 %>%
+  select(`Precio razonable`:`Variedad de maduración (años)`) %>% 
+  pivot_longer(cols = everything(),
+               names_to = "atributo",
+               values_to = "marca")
+
+table_DF4 <- base::table(DF4)
+
+### Porcentajes
+prop.table(table_DF4, margin = 1)
+prop.table(table_DF4, margin = 2)
+
+
+## Análisis de correspondencias
+
+FactoMineR::CA(table_DF4)$row$coord
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
